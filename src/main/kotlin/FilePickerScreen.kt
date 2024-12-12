@@ -19,12 +19,14 @@ fun CustomFilePicker(onFileSelected: (File) -> Unit) {
         Text("Current Directory: ${currentDirectory.absolutePath}", style = MaterialTheme.typography.h6)
 
         Button(
+            modifier = Modifier.padding(vertical = 8.dp),
             onClick = {
                 currentDirectory.parentFile?.let {
                     currentDirectory = it
                     files = it.listFiles()?.toList() ?: emptyList()
                 }
-            }, enabled = currentDirectory.parentFile != null, modifier = Modifier.padding(vertical = 8.dp)
+            },
+            enabled = currentDirectory.parentFile != null,
         ) {
             Text("Go to Parent Directory")
         }
@@ -52,24 +54,25 @@ fun CustomFilePicker(onFileSelected: (File) -> Unit) {
 
 @Composable
 fun FilePickerDemo() {
-    var selectedFile by remember { mutableStateOf<File?>(null) }
+    val selectedFiles = remember { mutableStateListOf<File>() }
     var showPicker by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        selectedFile?.let {
-            Text("Selected File: ${it.absolutePath}", style = MaterialTheme.typography.body1)
-        }
+        Text(
+            "Selected Files: ${selectedFiles.joinToString { it.name }}",
+            style = MaterialTheme.typography.body1,
+        )
 
-        Button(onClick = { showPicker = true }, modifier = Modifier.padding(vertical = 8.dp)) {
+        Button(onClick = { showPicker = !showPicker }, modifier = Modifier.padding(vertical = 8.dp)) {
             Text("Open File Picker")
         }
 
         if (showPicker) {
             CustomFilePicker(
                 onFileSelected = { file ->
-                    selectedFile = file
-                    showPicker = false // Close the picker after selection
-                })
+                    selectedFiles.add(file)
+                },
+            )
         }
     }
 }
